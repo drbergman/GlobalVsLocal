@@ -8,7 +8,7 @@ for ord_ind = 1:length(order)
 
         case 1 % proliferation
             n_ind = tumors(j,inds.ind_ind)+grid.rel_pos_ind; % neighbor indices
-            if ~update_pars.growing_me_size && (any(tumors(j,inds.subs_inds)==1) || any(tumors(j,inds.subs_inds)==grid.size))
+            if (any(tumors(j,inds.subs_inds)==1) || any(tumors(j,inds.subs_inds)==grid.size))
 
                 % enforce reflecting boundary conditions
 
@@ -100,7 +100,7 @@ for ord_ind = 1:length(order)
         case 3 % movement
             n_ind = tumors(j,inds.ind_ind)+grid.rel_pos_ind; % neighbor indices
 
-            if ~update_pars.growing_me_size && (any(tumors(j,inds.subs_inds)==1) || any(tumors(j,inds.subs_inds)==grid.size))
+            if (any(tumors(j,inds.subs_inds)==1) || any(tumors(j,inds.subs_inds)==grid.size))
                 % directions of proliferating are limited; set any
                 % direction that moves off grid to center point. this way,
                 % those spots are disallowed from proliferating into
@@ -135,26 +135,10 @@ for ord_ind = 1:length(order)
 
             if nnz(L(n_ind))<26 % make sure there is a direction to move
                 L(tumors(j,inds.ind_ind)) = false; % remove cell from lattice (if a direction would have moved the cell off the lattice, then that selection will now move it here, i.e. no movement)
-                if ~update_pars.chemotaxis_enabled(tumors(j,inds.type_ind)) || rand()>=update_pars.biased_move_probability
-                    ind = randsample(26,1,true,(~L(n_ind))./sqrt(sum(update_pars.neighbors.^2,2))); % weight by whether sites are empty and by the reciprocal of the distance
-                else
-                    if method=="local" || solver.still_solve_pde_in_global_method
-                        weights = substrate(update_pars.chemotaxis_substrate_ind).me_concentration(n_ind)-substrate(update_pars.chemotaxis_substrate_ind).me_concentration(tumors(j,inds.ind_ind));
-                    elseif method=="global"
-                        weights = substrate(update_pars.chemotaxis_substrate_ind).me_concentration(solver.regions(n_ind))-substrate(update_pars.chemotaxis_substrate_ind).me_concentration(solver.regions(tumors(j,inds.ind_ind)));
-                        weights = reshape(weights,[],1); % ensure weights is a column vector
-                    end
-                    weights(weights<0 | L(n_ind))=0;
-                    if all(weights==0)
-                        % cell ended up staying in place
-                        L(tumors(j,inds.ind_ind)) = true; 
-                        continue; % no place to move while following gradient
-                    end
-                    weights = weights./sum(update_pars.neighbors.^2,2);
-                    
-                    ind = randsample(26,1,true,weights); % weight by whether sites are empty and by the reciprocal of the distance
-                end
-                if ~update_pars.growing_me_size && n_ind(ind)==tumors(j,inds.ind_ind)
+                
+                ind = randsample(26,1,true,(~L(n_ind))./sqrt(sum(update_pars.neighbors.^2,2))); % weight by whether sites are empty and by the reciprocal of the distance
+                
+                if n_ind(ind)==tumors(j,inds.ind_ind)
                     % cell ended up staying in place
                     L(tumors(j,inds.ind_ind)) = true;
                     continue;

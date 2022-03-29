@@ -51,11 +51,6 @@ n_subcohorts = numel(EVENTS);
 f = @(pars) startPatient(N0,pars,EVENTS{1});
 
 method = {'Local','Global'};
-figure(2);
-for i = 1:length(influx_method)
-    subplot(length(influx_method),1,i); hold on;
-    title(influx_method{i})
-end
 
 color = parula(2);
 
@@ -98,10 +93,6 @@ for i = total_runs:-1:1
         fprintf('Finished %d of %d, or %3.2f%%, after %s. ETR: %s for total run time of %s.\n',...
             num_done,total_runs,100*num_done/total_runs,duration(0,0,TIMES(method_ind,si,influx_method_ind)),duration(0,0,etr),duration(0,0,etr+toc(timer_start)))
         
-        subplot(length(influx_method),1,influx_method_ind)
-        plot(TRACKED(method_ind,si,influx_method_ind).T,TRACKED(method_ind,si,influx_method_ind).NT,'Color',color(method_ind,:))
-        drawnow
-        
     else
         F(i) = parfeval(f,1,q);
     end
@@ -115,16 +106,13 @@ if total_runs >= min_parfor_num
         [idx,next_T] = fetchNext(F);
         [method_ind,si,influx_method_ind] = ind2sub(sz,idx);
         TRACKED(method_ind,si,influx_method_ind) = next_T;
-        if mod(i,4)==0
+        if mod(i,4)==0 % update after every worker has returned a simulation
             v_n = toc;
             mu_n = (((i/4)-1)*mu_n+2*v_n)/((i/4)+1); % this is computing the average duration of each run, weighting the more recent runs more heavily
             etr = mu_n*(total_runs-i)/4;
             fprintf('Finished %d of %d, or %3.2f%%, after %s. ETR: %s for total run time of %s.\n',...
                 i,total_runs,100*i/total_runs,duration(0,0,v_n),duration(0,0,etr),duration(0,0,etr+toc(timer_start)))
         end
-        subplot(length(influx_method),1,influx_method_ind)
-        plot(TRACKED(method_ind,si,influx_method_ind).T,TRACKED(method_ind,si,influx_method_ind).NT,'Color',color(method_ind,:))
-        drawnow
     end
     
 end

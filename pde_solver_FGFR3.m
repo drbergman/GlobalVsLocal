@@ -16,18 +16,6 @@ dt = tt(2)-tt(1);
 IC = tumors(:,tumor_receptors_inds);
 NT = size(tumors,1);
 
-if p.plot_every_pde_step
-    com = mean(tumors(:,location_inds));
-    f=figure(1);
-    clf;
-    ax(1) = subplot(1,2,1);
-    ax(2) = subplot(1,2,2);
-    
-    scatter(ax(1),sqrt(sum((tumors(:,location_inds)-com).^2,2)),tumors(:,tumor_receptors_inds(2))/2.0757)
-    scatter(ax(2),sqrt(sum((tumors(:,location_inds)-com).^2,2)),tumors(:,tumor_receptors_inds(2))/mean(tumors(:,tumor_receptors_inds(2))))
-    set(ax(1),'YLim',[0 .5],'YLimMode','manual')
-    set(ax(2),'Ylim',[.99 1.01])
-end
 if ~p.setup_done % then need to setup solver stuff
     %% set up in x direction
     r_ind_ux = 1:nx-1;
@@ -100,6 +88,7 @@ if ~p.setup_done % then need to setup solver stuff
             [~,xind] = min(abs(xx));
             p.IE(xind,:,:) = true;
         case 'outside'
+            % this is handled below
         case 'multiple lines'
             p.IE = false(size(aFGFR3));
             xloc_bv = vessel_spacing*(ceil(xx(1)/vessel_spacing):floor(xx(end)/vessel_spacing));
@@ -164,18 +153,10 @@ for ti = 2:p.nt
     %% Cell supply/uptake
     IC(:,3) = aFGFR3(tumors(:,ind_ind));
     timer.ode = tic;
-    dIC = localODE_vectorized(IC,kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D); % working on this here now
-    Js = localJacobian_vectorized(Js,IC,kf,kr,kp,k_on_R,k_off_R,k_on_D); % .5 to say (x2-x1)/dt = (f(x1)+f(x2))/2 OR (x2-x1)/dt = f((x1+x2)/2); this .5 is now accounted for in constructing Js
+    dIC = agentODE_FGFR3(IC,kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D); % working on this here now
+    Js = agentODEJacobian_FGFR3(Js,IC,kf,kr,kp,k_on_R,k_off_R,k_on_D); % .5 to say (x2-x1)/dt = (f(x1)+f(x2))/2 OR (x2-x1)/dt = f((x1+x2)/2); this .5 is now accounted for in constructing Js
     for ci = 1:NT
         IC(ci,:) = firstOrderImplicitUpdate(dt,IC(ci,:)',dIC(ci,:)',Js(:,:,ci),kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D);
-    end
-    
-    if p.plot_every_pde_step
-        scatter(ax(1),sqrt(sum((tumors(:,location_inds)-com).^2,2)),IC(:,2)/2.0757)
-        scatter(ax(2),sqrt(sum((tumors(:,location_inds)-com).^2,2)),IC(:,2)/mean(IC(:,2)))
-        set(ax(1),'Ylim',[0 .5])
-        set(ax(2),'Ylim',[.99 1.01])
-        drawnow
     end
     
     aFGFR3(tumors(:,ind_ind)) = IC(:,3); % update locations that have a tumor cell
@@ -198,8 +179,8 @@ if any(x<0)
     for i = 1:2
         x = firstOrderImplicitUpdate(dt/2,x,dIC,J,kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D);
         if i==1
-            dIC = localODE_vectorized(x',kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D)';
-            J = localJacobian_vectorized(J,x',kf,kr,kp,k_on_R,k_off_R,k_on_D);
+            dIC = agentODE_FGFR3(x',kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D)';
+            J = agentODEJacobian_FGFR3(J,x',kf,kr,kp,k_on_R,k_off_R,k_on_D);
         end
     end
 end

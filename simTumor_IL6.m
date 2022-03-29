@@ -10,7 +10,6 @@ end
 
 %% write down parameters (use structvars([structname]) to reproduce all this text
 pars = input.pars;
-plot_properties = input.plot_properties;
 flags = input.flags;
 method = input.method;
 solver = input.solver;
@@ -18,25 +17,9 @@ inds = input.inds;
 event_pars = input.event_pars;
 update_pars = input.update_pars;
 codensity_pars = input.codensity_pars;
-
-plotFigs = flags.plotFigs;                           
-% makeMovie = flags.makeMovie;                         
-plot_every = flags.plot_every;                       
-plot_offset = flags.plot_offset;                     
-plot_inhibitor = flags.plot_inhibitor;               
+                    
 track_all_phiD = flags.track_all_phiD;               
-% qs = flags.qs;
-growing_me_size = flags.growing_me_size;
-make3dplot = flags.make3dplot;
-next_plot_time = 0;
 
-track_intensities = codensity_pars.track_intensities;
-cod_edges = codensity_pars.cod_edges;
-if track_intensities
-    cod_intensity_mat = codensity_pars.cod_intensity_mat;
-else
-    cod_intensity_mat = [];
-end
 codensity_count = codensity_pars.codensity_count;
 
 TME_size = pars.TME_size;
@@ -51,7 +34,7 @@ if ~isfield(input,"tumors")
     [tumors,grid,L] = initializeTumor_IL6(input.initialization_pars,...
         inds);
     solver.gridsize = grid.size;
-    solver = setupSolver(solver);
+    solver = setupSolver_IL6(solver);
     for si = num_substrates:-1:1
         if method=="local"
             substrate(si).me_concentration = zeros(grid.size);
@@ -122,17 +105,11 @@ else
     tracked.substrate_tum = zeros(Nsteps+1,num_types,num_substrates); % average (total) concentration of substrates bound to tumor cells
     tracked.mean_z = zeros(Nsteps+1,num_types); % average z coordinate of each type (useful when blood vessels on floor
     tracked.std_z = zeros(Nsteps+1,num_types); % average z coordinate of each type (useful when blood vessels on floor
-%     tracked.Q = zeros(Nsteps,length(qs),num_types); % phiD value of quantiles for each type
-%     tracked.I = zeros(Nsteps,length(qs),num_types); % intensity of each curve for the quantiles for each type
 
     tracked.codensity = zeros(Nsteps+1,num_types); % average codensity by cell type
     tracked.codensity_std = zeros(Nsteps+1,num_types); % std of average codensity by cell type
     
     tracked.codensity_by_type = zeros(Nsteps+1,num_types,num_types); % average codensity with respect to each type by cell type
-
-    if track_intensities
-        tracked.codensity_intensities = zeros(Nsteps+1,length(cod_edges),4,3);
-    end
 
     tracked.substrate_by_z = zeros(Nsteps+1,TME_size(3),num_substrates);
     tracked.substrate_by_z_std = zeros(Nsteps+1,TME_size(3),num_substrates);
@@ -160,8 +137,8 @@ else
     end
 
     [tracked.codensity(1,:),tracked.codensity_std(1,:),...
-        tracked.codensity_by_type(1,:,:),tracked.codensity_intensities(1,:,:,:)] = ...
-        codensityFunction(tumors(:,inds.location_inds),codensity_count,tumors(:,inds.type_ind),num_types,cod_edges,cod_intensity_mat,track_intensities);
+        tracked.codensity_by_type(1,:,:)] = ...
+        codensityFunction(tumors(:,inds.location_inds),codensity_count,tumors(:,inds.type_ind),num_types);
 
     tracked = saveSubstrateInfo(tracked,solver,method,substrate,tumors(:,inds.ind_ind),counter);
     
@@ -181,27 +158,10 @@ for i = 1:Nsteps
 
         %% solve PDE
 
-        [tumors,substrate,timer] = substrateSolver(tumors,substrate,timer,solver,inds);
+        [tumors,substrate,timer] = substrateSolver_IL6(tumors,substrate,timer,solver,inds);
 
-        if plot_inhibitor
-            figure(1)
-            ax = gca;
-            if isempty(ax.Children)
-                surf(zeros(2),'FaceColor','interp','EdgeColor','interp');
-            end
-            title(sprintf('Time = %3.2f days',T))
-            [sx,sy,sz,sc] = sphere_with_carveout(xx,yy,zz,aIL6R);
-            ax.Children.XData = sx;
-            ax.Children.YData = sy;
-            ax.Children.ZData = sz;
-            ax.Children.CData = sc;
-            ax.View = [144,40];
-            %             ca = caxis;
-            %             caxis([0 max(ca(2),max(sc,[],'all'))])
-            %                 pause(.1)
-        end
     elseif method=="global"
-        [tumors,substrate,timer] = substrateSolver(tumors,substrate,timer,solver,inds);
+        [tumors,substrate,timer] = substrateSolver_IL6(tumors,substrate,timer,solver,inds);
     else
         error('unknown method')
     end % end of how to update tumors before cell fate decisions
@@ -211,11 +171,10 @@ for i = 1:Nsteps
         phiD_temp{ti} = phiD(tumors(:,inds.type_ind)==ti);
         tracked.phiD_mean(counter,ti) = mean(phiD_temp{ti});
         tracked.phiD_std(counter,ti) = std(phiD_temp{ti});
-%         [tracked.Q(counter-1,:,ti),tracked.I(counter-1,:,ti)] = timeSeriesHistogram(phiD_temp(ti),qs,1);
     end
     
     if track_all_phiD 
-        tracked.all_phiD{counter-1,:} = phiD_temp; % do this here before it's changed later
+        tracked.all_phiD{counter-1,:} = phiD_temp;
     end
     
     p_matrix_tum = event_pars.event_prob_fn(tumors,event_pars,dt,inds,phiD);
@@ -237,32 +196,7 @@ for i = 1:Nsteps
     else
         error('unknown method')
     end
-        
-    %% possibly make 3D plot
-    if make3dplot
-        figure;
-        firstoctant = all(tumors(:,inds.location_inds)>0,2);
-        resting_log = tumors(:,inds.event_ind) == 5;
-        prolif_log = tumors(:,inds.event_ind)==1;
-        contact_inhibited_log = tumors(:,inds.event_ind) == 6;
-        apoptosis_log = tumors(:,inds.event_ind)==2;
-        new_log = (1:size(tumors,1))'>NT;
-        hold on;
-        ind1 = ~firstoctant & resting_log;
-        ind2 = ~firstoctant & prolif_log;
-        ind3 = ~firstoctant & apoptosis_log;
-        ind4 = ~firstoctant & new_log;
-        ind5 = ~firstoctant & contact_inhibited_log;
-
-        scatter3(tumors(ind1,1),tumors(ind1,2),tumors(ind1,3),80,[0 0 0 ],'filled') % resting/quiescent
-        scatter3(tumors(ind2,1),tumors(ind2,2),tumors(ind2,3),80,[120,120,120]/255,'filled') % cycling
-        scatter3(tumors(ind3,1),tumors(ind3,2),tumors(ind3,3),80,[252,13,27]/255,'filled') % apoptotic
-        scatter3(tumors(ind4,1),tumors(ind4,2),tumors(ind4,3),80,[20,145,72]/255,'filled') % new cells
-        scatter3(tumors(ind5,1),tumors(ind5,2),tumors(ind5,3),80,[69,53,27]/255,'filled') % contact-inhibited
-        
-    end
-
-        
+               
     %% clean up tumor stuff
     apoptosis_log = tumors(:,inds.event_ind)==2;
     L(tumors(apoptosis_log,inds.ind_ind)) = false;
@@ -290,8 +224,8 @@ for i = 1:Nsteps
     end
 
     [tracked.codensity(counter,:),tracked.codensity_std(counter,:),...
-        tracked.codensity_by_type(counter,:,:),tracked.codensity_intensities(counter,:,:,:)] = ...
-        codensityFunction(tumors(:,inds.location_inds),codensity_count,tumors(:,inds.type_ind),num_types,cod_edges,cod_intensity_mat,track_intensities);
+        tracked.codensity_by_type(counter,:,:)] = ...
+        codensityFunction(tumors(:,inds.location_inds),codensity_count,tumors(:,inds.type_ind),num_types);
 
     tracked.wall_time_ode(counter-1,1) = timer.ode_duration;
     tracked.wall_time_pde(counter-1,1) = timer.pde_duration;
@@ -308,7 +242,6 @@ for i = 1:Nsteps
 end %%end of for
 
 input.pars = pars;
-input.plot_properties = plot_properties;
 input.flags = flags;
 input.method = method;
 input.solver = solver;

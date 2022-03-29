@@ -35,8 +35,6 @@ n_subcohorts = numel(EVENTS);
 f = @(ni,pars) startPatient(N0(ni),pars,EVENTS{1});
 
 method = {'Local','Global'};
-figure(2); hold on; set(gca,'yscale','log')
-color = parula(2);
 
 sz = [length(method),nsamps,n];
 TIMES = zeros(sz);
@@ -60,8 +58,6 @@ for i = total_runs:-1:1
     fprintf('Finished %d of %d, or %3.2f%%, after %s. ETR: %s for total run time of %s.\n',...
         num_done,total_runs,100*num_done/total_runs,duration(0,0,TIMES(mi,si,ni)),duration(0,0,etr),duration(0,0,etr+toc(timer_start)))
         
-    plot(TRACKED(mi,si,ni).T,TRACKED(mi,si,ni).NT,'Color',color(mi,:))
-    drawnow
 end
 
 %% clear variables I definitely do not want to save

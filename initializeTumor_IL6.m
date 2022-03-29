@@ -11,60 +11,25 @@ end
 tumors = zeros(NT,max_ind);
 
 
-if pars.growing_me_size
-    radius = nthroot((3/4)*(1/pi())*NT,3); % radius of sphere with volume equal to the number of cells
-    s = ceil(4*radius);
-    side = floor((1-s/2):(s/2));
-    sidebar = mean(side);
-    all_locs = allCombos(side,side,side);
-
-    tum_locs = all_locs(datasample(1:s^3,N0,'Replace',false,'Weights',exp(-1*sqrt(  sum((all_locs-sidebar).^2,2)  ))),:);
-    grid.mins = min(tum_locs,[],1);
-    grid.maxs = max(tum_locs,[],1);
-
-    grid.xx = (grid.mins(1)-pars.extra):(grid.maxs(1)+pars.extra); % I can make pars.extra depend on the size of the tumor and that dimension
-    grid.yy = (grid.mins(2)-pars.extra):(grid.maxs(2)+pars.extra);
-    grid.zz = (grid.mins(3)-pars.extra):(grid.maxs(3)+pars.extra);  
-
-    grid.size = [length(grid.xx),length(grid.yy),length(grid.zz)];
+tum_inds = randsample(1:prod(pars.TME_size),NT_cum(end),false);
+if isfield(inds,'ind_ind')
+    tumors(:,inds.ind_ind) = tum_inds;
+end
+if isfield(inds,'subs_inds') || isfield(inds,'location_inds')
+    [tum_subs(:,1),tum_subs(:,2),tum_subs(:,3)] = ind2sub(pars.TME_size,tum_inds);
+    if isfield(inds,'subs_inds')
+        tumors(:,inds.subs_inds) = tum_subs;
+    end
 
     if isfield(inds,'location_inds')
-        for ti = 1:pars.num_types
-            tumors(ti).A(:,inds.location_inds) = tum_locs(NT_cum(ti:ti+1),:);
-        end
+        tumors(:,inds.location_inds) = tum_subs-floor(0.5*(pars.TME_size+1)); % move center of TME to (0,0,0) (or at least near that) reason: if blood vessels are created based on location, this will help ensure uniformity across tumor sizes and random starts to the tumor
     end
-
-    if isfield(inds,'subs_inds')
-        tumors(:,inds.subs_inds) = (tumors(:,inds.location_inds)-repmat([grid.xx(1),grid.yy(1),grid.zz(1)],[NT,1])) + 1;
-    end
-    if isfield(inds,'ind_ind')
-        tumors(:,inds.ind_ind) = sub2ind(grid.size,tumors(:,inds.subs_inds(1)),...
-                                                   tumors(:,inds.subs_inds(2)),...
-                                                   tumors(:,inds.subs_inds(3))); % linear indices
-    end
-
-else
-
-    tum_inds = randsample(1:prod(pars.TME_size),NT_cum(end),false);
-    if isfield(inds,'ind_ind')
-        tumors(:,inds.ind_ind) = tum_inds;
-    end
-    if isfield(inds,'subs_inds') || isfield(inds,'location_inds')
-        [tum_subs(:,1),tum_subs(:,2),tum_subs(:,3)] = ind2sub(pars.TME_size,tum_inds);
-        if isfield(inds,'subs_inds')
-            tumors(:,inds.subs_inds) = tum_subs;
-        end
-
-        if isfield(inds,'location_inds')
-            tumors(:,inds.location_inds) = tum_subs-floor(0.5*(pars.TME_size+1)); % move center of TME to (0,0,0) (or at least near that) reason: if blood vessels are created based on location, this will help ensure uniformity across tumor sizes and random starts to the tumor
-        end
-    end
-
-    grid.size = pars.TME_size;
-    grid.xx = (1:grid.size(1))-floor(0.5*(pars.TME_size(1)+1));
-    grid.yy = (1:grid.size(2))-floor(0.5*(pars.TME_size(2)+1));
-    grid.zz = (1:grid.size(3))-floor(0.5*(pars.TME_size(3)+1));
 end
+
+grid.size = pars.TME_size;
+grid.xx = (1:grid.size(1))-floor(0.5*(pars.TME_size(1)+1));
+grid.yy = (1:grid.size(2))-floor(0.5*(pars.TME_size(2)+1));
+grid.zz = (1:grid.size(3))-floor(0.5*(pars.TME_size(3)+1));
 
 grid.V_tot = prod(grid.size);
 grid.rel_pos_ind = pars.neighbors*cumprod([1,grid.size(1:2)])'; % for Moore neighborhood

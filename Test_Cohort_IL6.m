@@ -11,29 +11,10 @@ input = basePars_IL6();
 
 %% some parameters you may want to change for this cohort
 
-% input.flags.plotFigs = true;
-% input.plot_properties.plotLocations = true;
-% input.solver.max_pde_dt = 1;
 % input.pars.desired_dt = 1;
-% input.update_pars.P_ec50 = 2;
 % input.pars.TME_size = [20,20,20];
 % input.simpars.censor_date = 0.1;
-% input.solver.dirichlet_condition(1) = 5e3;
 % input.initialization_pars.N0 = [100,10,20];
-% input.solver.substrate_pars(1).degradation = 0.4;
-% input.solver.substrate_pars(1).diffusion = 750;
-% input.solver.plot_every_pde_step = true;
-% input.event_pars.prolif_rate = input.event_pars.prolif_rate;
-% input.event_pars.delta = 5*input.event_pars.delta;
-% input.update_pars.mu_S = 0.6;
-% input.event_pars.move_rate_in_microns = 0.2;
-
-% input.solver.agent_ode_pars.kf = 0; % dont let cells affect il6 concentrations
-
-% input.initialization_pars.start_with_drug(2) = true; % start with aIL6R
-% input.initialization_pars.circulation_concentration(2) = 1e2;
-% input.solver.substrate_pars(2).sysdecay = 0.04/(60*24); % set so half-life in circulation is log(2)/0.04 ~= 17 days, which we can see in one simulation
-% input.solver.substrate_pars(2).fluid_exchange_rate = 20*input.solver.substrate_pars(2).k12; % since 1/20 of the TME (in a 20x20x20 TME) exchanges with circulation, this rate should mean this part of the periphery gets as much aIL6R as the rest of the periphery
 
 %% run cohort
 
