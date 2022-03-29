@@ -24,13 +24,13 @@ simpars.censor_date = 60*24; % number of minutes to simulate
 codensity_pars.codensity_count = 21; % the nth nearest cell for codensity computations
 
 pars.num_types = 3; % number of types of cells
-initialization_pars.N0 = [10,5,0]; % initial tumor popoulations by type
+initialization_pars.N0 = [100,10,20]; % initial tumor popoulations by type
 
-pars.TME_size = [10,10,10]; % number of lattice points in grid
+pars.TME_size = [20,20,20]; % number of lattice points in grid
 
 pars.cell_width = 20; % in microns; bladder cancer cell is about 20micrometers in diameter
 
-pars.desired_dt = 30; % desired number of minutes per step
+pars.desired_dt = 60; % desired number of minutes per step
 
 %% neighbor parameters
 pars.occmax = 20; % below this threshold, a tumor cell can divide; at and above, too many neighbors and so doesn't proliferate
