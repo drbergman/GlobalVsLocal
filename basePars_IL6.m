@@ -1,15 +1,7 @@
 function out = basePars_IL6()
 
-flags.plotFigs = false;  % whether or not to plot any figures             
-flags.makeMovie = false;   % whether or not to make a movie (need plotFigs=true)
-flags.plot_every = 360; % how many minutes to wait before plotting again
-flags.plot_offset = 0; % if plot_every>1, this determines which of the plot_every to plot
-flags.plot_inhibitor = false; % if running the local method, will plot inhibitor after PDE step
 flags.track_all_phiD = false; % whether or not to track all phiD values
-flags.qs = linspace(0,1,11); % quantiles to compute for phiD
 flags.go_without_tumor = false; % whether to continue even if the tumor is gone
-flags.growing_me_size = false; % whether or not to allow the microenvironment grid to grow
-flags.make3dplot = false; % whether or not to make a 3d plot during simulation
 
 initialization_pars.initialize_cell_receptors_by_type = true; % whether the type of cell determines initial receptor concentrations
 initialization_pars.start_with_drug = [false,false]; % whether or not to start with the drug in circulation
@@ -18,10 +10,6 @@ initialization_pars.periphery_concentration = [0,0]; % how much drug to start in
 
 method = "local";
 
-plot_properties.plotLocations = false; % whether or not to plot a 3D rendering of tumor (need plotFigs=true)
-plot_properties.nrows = 4;
-plot_properties.ncols = 4;
-plot_properties.type_names = ["stem","progenitor","TD"];
 inds.location_inds = 1:3; % locations of grid points
 inds.subs_inds = 4:6; % subscripts of where tumor cells are in L array
 inds.ind_ind = 7; % column containing the linear index of where cells are on the IL6 grid
@@ -33,8 +21,6 @@ inds.tumor_receptors_inds = 12:16; % columns containing the receptor information
 
 simpars.censor_date = 60*24; % number of minutes to simulate
 
-codensity_pars.track_intensities = false; % whether or not to save tracked.codensity_intensities (it can be a large variable)
-codensity_pars.cod_edges = [1:1:22,Inf]; % quantiles to compute for phiD
 codensity_pars.codensity_count = 21; % the nth nearest cell for codensity computations
 
 pars.num_types = 3; % number of types of cells
@@ -73,9 +59,9 @@ update_pars.mu_S = 0.04; % modulation parameter for effect of IL6 on the minimum
 % P_Smin = @(phi_S) mu_S * (P_Smax - P_Smin_star)*phi_S + P_Smin_star;
 % P = @(S,phi_S) = (P_Smax - P_Smin(phi_S)) * P_ec50^hillcoeff / (P_ec50^hill_coeff+S^hill_coeff) + P_Smin_star;
 
-delta_S = 1.5*0.6*0.014 / (24*60); % max death rate of cancer stem cells (per minute)
-delta_E = 0.0612 / (24*60); % max death rate of progenitor cells (per minute)
-delta_D = 0.0612 / (24*60); % max death rate of terminally differentiated cells (per minute)
+delta_S = 7.5*0.6*0.014 / (24*60); % max death rate of cancer stem cells (per minute)
+delta_E = 0.306 / (24*60); % max death rate of progenitor cells (per minute)
+delta_D = 0.306 / (24*60); % max death rate of terminally differentiated cells (per minute)
 
 event_pars.delta = [delta_S,delta_E,delta_D];
 
@@ -89,11 +75,7 @@ event_pars.ec50 = 1/2.38;
 update_pars.w = 2; % number of proliferations as progenitor cell before becoming terminally differentiated and no longer proliferating
 event_pars.move_rate_in_microns = 2; % assume tumor cells move 2um/minute
 
-update_pars.chemotaxis_substrate_ind = 1;
-update_pars.chemotaxis_enabled = false(1,3);
-update_pars.biased_move_probability = 0.5;
-
-event_pars.event_prob_fn = @il6EventProbabilities;
+event_pars.event_prob_fn = @eventProbabilities_IL6;
 %% IL6-IL6R signaling
 
 RT_S = 1.66e-6; % femtomoles of IL6R on cancer stem cells
@@ -102,14 +84,13 @@ RT_D = 0.125*(1.66e-6); % femtomoles of IL6R on terminally differentiated cells
 
 pars.RT_nanomoles = [RT_S,RT_E,RT_D] * 1e-6; % number of nanomoles of IL6R on a tumor cell for all types
                            
-
 pars.phiD_ind = 3; % index of receptors to compute phiD
 
 substrate_pars.name = "IL6";
-substrate_pars.diffusion = 1.08e2... % diffusion rate of IL12 (assume similar to IL6 even though it seems to be ~3x the molecular weight of IL6) in cm^2/day
+substrate_pars.diffusion = 1.08... % diffusion rate in cm^2/day
                      *1e6... % convert cm^2 to um^2
                      /(24*60); % convert per day to per minute;
-substrate_pars.degradation = 0.4152... % spontaneous degradation of IL6 in microenvironment (in per day)
+substrate_pars.degradation = 576.0... % spontaneous degradation of IL6 in microenvironment (in per day)
               /(24*60); % in per minute
 solver.agent_ode_pars.secretion_nanomoles = 7e-7... % rate of production of IL6 by each tumor cell (in femtomoles per day)
            *1e-6... % convert femtomoles to nanomoles
@@ -126,7 +107,7 @@ solver.agent_ode_pars.kp = 24.95... % internalization/recycling rate of IL6-IL6R
 
 substrate_pars(1).total_dual = [0;0;1;0;0]; % dual vector to take in receptor concentrations on agent and output total IL6 on agent
 solver.is_dirichlet_at_blood_vessels(1) = true;
-solver.dirichlet_condition(1) = 1; % assumed constant concentration of IL6 near blood vessels due to secretion by endothelial cells
+solver.dirichlet_condition(1) = 5e3; % assumed constant concentration of IL6 near blood vessels due to secretion by endothelial cells
 
 %% anti-IL6R related
 
@@ -164,16 +145,14 @@ solver.setup_done = false;
 solver.num_substrates = 2;
 solver.is_pk = [false,true]; % IL6 does not have PK dynamics, aIL6R does
 solver.substrate_entry = "floor"; % where aIL6R enters the microenvironment
-solver.plot_every_pde_step = false; % if running the local method, this can be used to plot every pde step to view microenvironment concentration
 solver.is_present = [true,false]; % whether or not the substrates are present
-solver.agent_ode = @il6_ode;
-solver.global_method_full_ode = @il6_full_global_ode;
+solver.agent_ode = @agentODE_IL6;
+solver.global_method_full_ode = @fullGlobalODE_IL6;
 solver.substrate_pars = substrate_pars;
 solver.separate_TOV_and_AMB = false; % whether to subdivide regions by being in TOV or AMB
 solver.m = [1,1,1]; % size of regions to use in global method if substrate_entry is set to cell_source
 %% construct struct
 out = struct('method',method,...
-    'plot_properties',plot_properties,...
     'pars',pars,...
     'flags',flags,...
     'simpars',simpars,...

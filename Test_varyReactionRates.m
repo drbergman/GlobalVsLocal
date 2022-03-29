@@ -40,8 +40,6 @@ n_subcohorts = numel(EVENTS);
 f = @(pars) startPatient(N0,pars,EVENTS{1});
 
 method = {'Local','Global'};
-figure(2); hold on;
-color = parula(2);
 
 sz = [length(method),nsamps,length(k_on_R),length(k_off_R),length(kf),length(kr)];
 method_ind = 1;
@@ -84,10 +82,6 @@ for i = total_runs:-1:1
         fprintf('Finished %d of %d, or %3.2f%%, after %s. ETR: %s for total run time of %s.\n',...
             num_done,total_runs,100*num_done/total_runs,duration(0,0,TIMES(method_ind,si,k_on_Ri,k_off_Ri,kfi,kri)),duration(0,0,etr),duration(0,0,etr+toc(timer_start)))
         
-        
-        plot(TRACKED(method_ind,si,k_on_Ri,k_off_Ri,kfi,kri).T,TRACKED(method_ind,si,k_on_Ri,k_off_Ri,kfi,kri).NT,'Color',color(method_ind,:))
-        drawnow
-        
     else
         F(i) = parfeval(f,1,q);
     end
@@ -109,8 +103,6 @@ if total_runs >= min_parfor_num
             fprintf('Finished %d of %d, or %3.2f%%, after %s. ETR: %s for total run time of %s.\n',...
                 i,total_runs,100*i/total_runs,duration(0,0,v_n),duration(0,0,etr),duration(0,0,etr+toc(timer_start)))
         end
-        plot(TRACKED(method_ind,si,k_on_Ri,k_off_Ri,kfi,kri).T,TRACKED(method_ind,si,k_on_Ri,k_off_Ri,kfi,kri).NT,'Color',color(method_ind,:))
-        drawnow
     end
     
 end

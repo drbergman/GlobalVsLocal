@@ -4,7 +4,7 @@ function [tumors,aFGFR3] = updateTumor_FGFR3(p,order,tumors,V_tot,NT,...
 for ord_ind=1:length(order)
     j = order(ord_ind);
     switch tumors(j,event_ind)
-        case 1 % CSC-->CSC|CSC
+        case 1 % proliferation
             locs=tumors(j,location_inds) + p.neighbors;
             trouble_tum = max(abs(tumors(:,location_inds)-tumors(j,location_inds)),[],2)==1;
             free_locs = locs(~any(all(locs == reshape(tumors(trouble_tum,location_inds)',1,3,[]),2),3),:); % see test_setdiff.m in Step22 for why this is the way I'm determining this

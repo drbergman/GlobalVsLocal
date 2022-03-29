@@ -18,13 +18,10 @@ tumor_receptors_inds = 14:19; % column indices in which the receptor information
 
 %% write down parameters
 main = pars.main;
-plot_properties = pars.plot_properties;
 
 track_all_phiD = main.track_all_phiD;
 dt = main.dt;
 cell_width = main.cell_width;
-plot_every_pde_step = main.plot_every_pde_step;
-plot_inhibitor = main.plot_inhibitor;
 alpha1 = main.alpha1;
 alpha2 = main.alpha2;
 delta = main.delta;
@@ -91,7 +88,7 @@ if aFGFR3_circ>0 || any(aFGFR3>0)% set up fgfr3 inhibitor stuff
             'aFGFR3_diffusion',aFGFR3_diffusion,'t_pde',dt,...
             'nt',max(2,ceil(dt/max_pde_dt)),'aFGFR3_influx',aFGFR3_influx,...
             'aFGFR3_eflux',aFGFR3_eflux,...
-            'inhibitor_entry',inhibitor_entry,'setup_done',false,'plot_every_pde_step',plot_every_pde_step);
+            'inhibitor_entry',inhibitor_entry,'setup_done',false);
                         
         if numel(aFGFR3)<prod(grid_size)
             aFGFR3=aFGFR3+zeros(length(xx),length(yy),length(zz));
@@ -183,21 +180,6 @@ for i = 1:Nsteps
             aFGFR3,aFGFR3_circ,aFGFR3_pde_constructs,tumors,tumor_receptors_inds,ind_ind,timer,...
             kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D,inhibitor_entry,location_inds,cell_width,vessel_spacing);
         
-        if plot_inhibitor
-            figure(1)
-            ax = gca;
-            if isempty(ax.Children)
-                surf(zeros(2),'FaceColor','interp','EdgeColor','interp');
-            end
-            title(sprintf('Time = %3.2f days',T))
-            [sx,sy,sz,sc] = sphere_with_carveout(xx,yy,zz,aFGFR3);
-            ax.Children.XData = sx;
-            ax.Children.YData = sy;
-            ax.Children.ZData = sz;
-            ax.Children.CData = sc;
-            ax.View = [144,40];
-            pause(.1)
-        end
     else 
         %% global method for update
         main.volume_prop = NT/V_tot;
@@ -238,7 +220,7 @@ for i = 1:Nsteps
             IC = [NT,0,mean(tumors(:,tumor_receptors_inds),1),aFGFR3]; % use average concentrations around each cell
             
             timer.ode = tic;
-            [new_concentrations,aFGFR3] = allCellsODE_FGFR3(IC,main,dt,aFGFR3_circ);
+            [new_concentrations,aFGFR3] = fullGlobalODE_FGFR3(IC,main,dt,aFGFR3_circ);
             timer.ode_duration = toc(timer.ode);
             
             aFGFR3_circ = aFGFR3_circ * exp(-aFGFR3_sysdecay*dt);
@@ -281,8 +263,6 @@ for i = 1:Nsteps
                 V_tot,NT,aFGFR3,location_inds,...
                 event_ind,proliferation_timer_ind,tumor_receptors_inds);
     end
-    phiD(NT+1:size(tumors,1),1) = 0; % to make sure phiD is big enough
-    phiD((1:size(tumors,1)>NT)',1) = tumors((1:size(tumors,1)>NT)',tumor_receptors_inds(2))/RT; % set phiD for all new tumors
     
     %% update locations on grid
     tumors(NT+1:end,subs_inds) = (tumors(NT+1:end,location_inds)-repmat([xx(1),yy(1),zz(1)],[size(tumors,1)-NT,1]))/deltaX + 1;
@@ -291,31 +271,6 @@ for i = 1:Nsteps
     if strcmp(method,'Local') && ndims(aFGFR3)==3 % assign inhibitor concentration to new tumor cells
         tumors(NT+1:end,tumor_receptors_inds(3)) = aFGFR3(tumors(NT+1:end,ind_ind));
     end
-        
-    %% possibly make 3D plot
-    if isfield(pars.main,'make3dplot') && pars.main.make3dplot
-        figure;
-        firstoctant = all(tumors(:,location_inds)>0,2);
-        resting_log = tumors(:,event_ind) == 5;
-        prolif_log = tumors(:,event_ind)==1;
-        contact_inhibited_log = tumors(:,event_ind) == 6;
-        apoptosis_log = tumors(:,event_ind)==2;
-        new_log = (1:size(tumors,1))'>NT;
-        hold on;
-        ind1 = ~firstoctant & resting_log;
-        ind2 = ~firstoctant & prolif_log;
-        ind3 = ~firstoctant & apoptosis_log;
-        ind4 = ~firstoctant & new_log;
-        ind5 = ~firstoctant & contact_inhibited_log;
-
-        scatter3(tumors(ind1,1),tumors(ind1,2),tumors(ind1,3),80,[0 0 0 ],'filled') % resting/quiescent
-        scatter3(tumors(ind2,1),tumors(ind2,2),tumors(ind2,3),80,[120,120,120]/255,'filled') % cycling
-        scatter3(tumors(ind3,1),tumors(ind3,2),tumors(ind3,3),80,[252,13,27]/255,'filled') % apoptotic
-        scatter3(tumors(ind4,1),tumors(ind4,2),tumors(ind4,3),80,[20,145,72]/255,'filled') % new cells
-        scatter3(tumors(ind5,1),tumors(ind5,2),tumors(ind5,3),80,[69,53,27]/255,'filled') % contact-inhibited
-        
-    end
-
         
     %% clean up tumor stuff
     apoptosis_log = tumors(:,event_ind)==2;
@@ -363,6 +318,8 @@ for i = 1:Nsteps
     
 end %%end of for
 
+% save these for this patient to be used in subsequent calls to
+% simTumor_FGFR3
 aFGFR3_tracker = {aFGFR3_circ,aFGFR3};
 
 grids = {xx,yy,zz};

@@ -1,16 +1,8 @@
 function p = basePars_FGFR3()
 
-plot_properties.plotFigs = false;               
-plot_properties.makeMovie = false;   
-plot_properties.plotLocations = true;
-plot_properties.plot_every = 1;
-plot_properties.plot_offset = 0;
-
 main.dt = (1/6) / 24; % number of days per step
 main.cell_width = 20e-6; % in meters; bladder cancer cell is about 20micrometers in diameter
 main.track_all_phiD = false; % whether or not to track all phiD values
-main.plot_every_pde_step = false;
-main.plot_inhibitor = false;
 
 %% neighbor parameters
 main.occmax = 20; % below this threshold, a tumor/immune cell can divide; at and above, too many neighbors and so doesn't proliferate
@@ -65,4 +57,4 @@ main.deltaX = 1/(main.n_between+1); % number of grid points between possible cel
 %% vasculature (only for influx method 'multiple lines'
 main.vessel_spacing = 200e-6*2; % all cells are within 200 micrometers of a blood vessel, so space them out 400 micrometers in x and y directions
 %% construct struct
-p = struct('plot_properties',plot_properties,'main',main);
+p = struct('main',main);
