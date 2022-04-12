@@ -9,3 +9,8 @@ Repository of code for establishing how the global method compares to the local 
 2. Run_Figure3FG.m: produces panels F-G (data also used to create some SI figs)
 
 The files beginning with "Test_" can be run to create similar data to what is in the figures.
+
+## Figure 4 (Noise in the local method is negligible and follows predictable patterns)
+
+1. Run_Figure3.m: produces panels A-B.
+2. 
