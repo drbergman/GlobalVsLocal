@@ -13,4 +13,6 @@ The files beginning with "Test_" can be run to create similar data to what is in
 ## Figure 4 (Noise in the local method is negligible and follows predictable patterns)
 
 1. Run_Figure3.m: produces panels A-B.
-2. 
+2. Run_Figure4CD.m: produces panels C-D. (also makes the same plot at other time points)
+
+## Figure 5
