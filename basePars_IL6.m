@@ -48,9 +48,9 @@ pars.min_prolif_wait = 9*60; % number of minutes all cells must wait at minimum 
 
 update_pars.P_Smin_star = 0.014; % minimum probability of symmetric division for cancer stem cells (approached as number of cancer stem cells --> infty)
 update_pars.P_Smax = 0.9; % max probability of symmetric division for cancer stem cells (approached as number of cancer stem cells --> 0)
-update_pars.P_ec50 = 100; % number of stem cells at which the proliferation rate of stem cells is halfway between P_Smin_star and P_Smax
+update_pars.P_ec50 = 2; % number of stem cells at which the proliferation rate of stem cells is halfway between P_Smin_star and P_Smax
 update_pars.hill_coeff = 2.6; % hill coefficient for suppression of stem cell self-renewal
-update_pars.mu_S = 0.04; % modulation parameter for effect of IL6 on the minimum self-renewal rate of stem cells
+update_pars.mu_S = 0.6; % modulation parameter for effect of IL6 on the minimum self-renewal rate of stem cells
 
 % P: probability of stem cell self-renewal
 % P_Smin: minimum probability of stem cell self-renewal
@@ -73,7 +73,7 @@ event_pars.delta = [delta_S,delta_E,delta_D];
 event_pars.ec50 = 1/2.38;
 
 update_pars.w = 2; % number of proliferations as progenitor cell before becoming terminally differentiated and no longer proliferating
-event_pars.move_rate_in_microns = 2; % assume tumor cells move 2um/minute
+event_pars.move_rate_in_microns = 0.2; % assume tumor cells move 0.2um/minute
 
 event_pars.event_prob_fn = @eventProbabilities_IL6;
 %% IL6-IL6R signaling
@@ -116,12 +116,13 @@ solver.agent_ode_pars.kr_I = 21.6... % unbinding of inhibitor and IL6R (in per d
             /(24*60); % in per minute
 
 substrate_pars(2).name = "aIL6R";
-substrate_pars(2).fluid_exchange_rate = 10; % the rate that the concentration differential between the blood and perivascular region decays (in per minute)
+substrate_pars(2).fluid_exchange_rate = 286.0... % the rate that the concentration differential between the blood and perivascular region decays (in per day)
+                /(24*60); % in per minute
 substrate_pars(2).k12 = 14.30... % rate that amount of aIL6R moves from circulation to periphery (in per day)
                 /(24*60); % in per minute
 substrate_pars(2).k21 = 5.55... % rate that amount of aIL6R moves from periphery to circulation (in per day)
                 /(24*60);
-substrate_pars(2).sysdecay = 0.004... % decay rate of aIL6R from circulation (in per day)
+substrate_pars(2).sysdecay = 0.04... % decay rate of aIL6R from circulation (in per day)
                      /(24*60); % in per minute
 substrate_pars(2).receptor_ind = 4; % aIL6R is the fourth of the receptors on agents
 
@@ -140,7 +141,7 @@ solver.is_dirichlet_at_blood_vessels(2) = false;
 pars.vessel_spacing = 200*2; % all cells are within 200 micrometers of a blood vessel, so space them out 400 micrometers in x and y directions
 
 %% construct solver struct
-solver.max_pde_dt = 0.5;   % biggest allowable dt for updating the PDE (in minutes)
+solver.max_pde_dt = 0.1;   % biggest allowable dt for updating the PDE (in minutes)
 solver.setup_done = false;
 solver.num_substrates = 2;
 solver.is_pk = [false,true]; % IL6 does not have PK dynamics, aIL6R does

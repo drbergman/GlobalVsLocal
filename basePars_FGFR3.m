@@ -1,5 +1,7 @@
 function p = basePars_FGFR3()
 
+plot_properties.plot_inhibitor = false; % whether or not to plot inhibitor concentrations after solving the PDE
+
 main.dt = (1/6) / 24; % number of days per step
 main.cell_width = 20e-6; % in meters; bladder cancer cell is about 20micrometers in diameter
 main.track_all_phiD = false; % whether or not to track all phiD values
@@ -57,4 +59,4 @@ main.deltaX = 1/(main.n_between+1); % number of grid points between possible cel
 %% vasculature (only for influx method 'multiple lines'
 main.vessel_spacing = 200e-6*2; % all cells are within 200 micrometers of a blood vessel, so space them out 400 micrometers in x and y directions
 %% construct struct
-p = struct('main',main);
+p = struct('main',main,'plot_properties',plot_properties);

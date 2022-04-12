@@ -1,22 +1,23 @@
 clearvars;
 
 % This script will test the speed of our model running local vs global and
-% their equivalence. it generates the data necessary for Figure 3.
+% their equivalence. it generates the data necessary for Figure 3, except
+% for panels F and G, as well some SI figs. 
 
-base_name = 'Figure2_';
-nsamps = 3; % number of samples to run for each method
-N0 = 1e1; % initial number of tumor cells
+% it also generates Figure 4AB
+
+base_name = 'Figure3_';
+nsamps = 20; % number of samples to run for each method
+N0 = 1e4; % initial number of tumor cells
 save_output = false; % set to true if you want to save the output
 
 %% dosing regimens
-aFGFR3_start_min = 0; % min day in simulation to start. will pick next Monday on or after this to start
+aFGFR3_start_min = 1; % min day in simulation to start. will pick next Monday on or after this to start
 aFGFR3_days_between = 1; % days between successive doses of anti-FGFR3
 DoW_start = 6; % day of week to start on; 0 = monday (so 6 means the first simmed day is considered a Sunday and the first dose should be given on Day 1 (see aFGFR3_start_simday below)
-censor_date = 2; % day in simulation to end
+censor_date = 8; % day in simulation to end
 
 n_doses_aFGFR3 = 5; % max number of doses of FGFR3 to give
-
-%% set filename for saving (if desired)
 
 %% initialize pars
 pars = basePars_FGFR3();
@@ -30,13 +31,8 @@ events = dosingRegimes(censor_date,DoW_start,...
 f = @(pars) startPatient_FGFR3(N0,pars,events{1}); % function to run simulation with a given set of parameters
 
 method = {'Local','Global'};
-
-% organizing the output of the cohort
-method_ind = 1;
-sample_ind = 2;
 sz = [length(method),nsamps];
 
-% preparing the timing of the runs
 total_runs = prod(sz);
 times = zeros(sz);
 
@@ -61,8 +57,6 @@ for i = total_runs:-1:1
         num_done,total_runs,100*num_done/total_runs,duration(0,0,times(mi,si)),duration(0,0,etr),duration(0,0,etr+toc(timer_start)))
 end
 
-%% clear variables I definitely do not want to save
-
 if save_output
     if ~exist('./data','dir') % make sure the data directory exists
         mkdir('./data')
@@ -73,11 +67,11 @@ end
 
 %% generate panels
 
-nfigs = 6;
+nfigs = 8;
 figs = gobjects(nfigs,1);
 method_colors = lines(2);
 
-t = tracked(1).T;
+t = tracked(1,1).T;
 
 %% tumor cell counts plots
 all_tumor_sizes = zeros(length(t),nsamps,2);
@@ -156,6 +150,54 @@ xlabel('Wall Time (s)')
 ylabel('Frequency')
 legend('Local','Global')
 
+%% signal-to-noise ratio
+figs(7) = figure("Name","Signal-to-Noise Ratio");
+h = gca;
 
+plot(t(1:end-1),tracked(1,1).phiD_mean(2:end),'Color',method_colors(mi,:),'LineWidth',2);
+xlabel('Simulation Time (d)')
+ylabel('\phi_D (Fractional Occupancy')
 
+yyaxis right
+snr_color = [62,78,180]/255;
+h.YAxis(2).Color = snr_color;
+snr_plot = plot(t(1:end-1),tracked(1,1).phiD_mean(2:end)./tracked(1,1).phiD_std(2:end),'LineWidth',2,'Color',snr_color);
+set(gca,'YScale','log')
+ri = t(1:end-1)<1 | t(1:end-1)>6.875; % remove the SNR for these time points to focus the SNR shortly after the dose
+snr_plot.YData(ri) = NaN;
+ylab = ylabel('Signal-to-Noise Ratio','Rotation',270,...
+    'VerticalAlignment','bottom');
+figs(7).Children.FontSize = 20;
 
+%% snr vs time since therapy
+
+signal_colors = bone(2);
+
+figs(8) = figure("Name","SNR vs Time Since Therapy");
+h = gca;
+time_since_last_dose = pars.main.dt*round((t(1:end-1)-(1:5))/pars.main.dt); % how far after each dose the current time point is
+time_since_last_dose(time_since_last_dose<0) = NaN; % ignore all time points before the given dose
+time_since_last_dose = min(time_since_last_dose,[],2); % find the smallest (positive) time since a given dose, this is how long since the previous dose
+time_since_last_dose(time_since_last_dose>1) = NaN; % ignore all time points that occur more than one day after the most recent dose
+snr = tracked(1,1).phiD_mean(2:end)./tracked(1,1).phiD_std(2:end);
+snr(isnan(time_since_last_dose)) = [];
+sv = tracked(1,1).phiD_mean(2:end); % signal value
+sv(isnan(time_since_last_dose)) = [];
+time_since_last_dose(isnan(time_since_last_dose)) = [];
+
+cmap = interp1([min(sv);max(sv)],[(1+signal_colors(1,:))/2;signal_colors(1,:)],sv); % set colors based on the signal value
+colormap(flipud(unique(cmap,'rows')))
+
+scatter(time_since_last_dose,snr,40,cmap,'filled');
+xlabel('Time Since Last Therapy (d)')
+ylabel('SNR')
+set(h,'YScale','log')
+
+c = colorbar;
+c.Label.String = 'Signal';
+c.Label.Rotation = 270;
+c.Label.VerticalAlignment = 'baseline';
+caxis([min(sv);max(sv)])
+
+h.YLim(1) = 1;
+h.FontSize = 20;

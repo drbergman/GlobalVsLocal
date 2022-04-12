@@ -180,6 +180,15 @@ for i = 1:Nsteps
             aFGFR3,aFGFR3_circ,aFGFR3_pde_constructs,tumors,tumor_receptors_inds,ind_ind,timer,...
             kf,kr,kp,k_on_R,k_off_R,k_on_D,k_off_D,inhibitor_entry,location_inds,cell_width,vessel_spacing);
         
+        if pars.plot_properties.plot_inhibitor
+            figure(54321);
+            [sx,sy,sz,sc] = sphere_with_carveout(xx,yy,zz,aFGFR3);
+            surf(sx,sy,sz,sc,'FaceColor','interp','EdgeColor','interp');
+            title(sprintf('Time = %3.2f hours',T*24))
+            view(144,40)
+            drawnow
+        end
+
     else 
         %% global method for update
         main.volume_prop = NT/V_tot;
