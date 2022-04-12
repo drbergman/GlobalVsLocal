@@ -5,18 +5,18 @@ clearvars;
 % figures
 
 base_name = 'Figure3FG_';
-n = 2; % number of initial tumor sizes to test
-nsamps = 1; % number of samples to run for each method at each initial tumor size
+n = 7; % number of initial tumor sizes to test
+nsamps = 3; % number of samples to run for each method at each initial tumor size
 save_output = false; % set to true if you want to save the output
 
 %% parameters that are constant for all patients
-N0 = round(logspace(log10(1),log10(10),n)); % initial number of tumor cells
+N0 = round(logspace(log10(50),log10(50000),n)); % initial number of tumor cells
 
 %% dosing regimens
 aFGFR3_start_min = 1; % min day in simulation to start. will pick next Monday on or after this to start
 aFGFR3_days_between = 1; % days between successive doses of anti-FGFR3
 DoW_start = 6; % day of week to start on; 0 = monday (so 6 means the first simmed day is considered a Sunday and the first dose should be given on Day 1 (see aFGFR3_start_simday below)
-censor_date = 2; % day in simulation to end
+censor_date = 8; % day in simulation to end
 
 n_doses_aFGFR3 = 5; % max number of doses of FGFR3 to give
 

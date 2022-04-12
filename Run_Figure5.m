@@ -4,7 +4,7 @@ clearvars;
 % agreement between the methods in the IL6 example
 
 %% set up cohort
-nsamps = 2;
+nsamps = 20;
 method = ["local","global"];
 base_name = "Figure5_";
 min_parfor = 4; % if the timing of these runs is not important, allow for use of a parallel pool if desired
@@ -15,7 +15,7 @@ input = basePars_IL6();
 
 %% some parameters you may want to change for this cohort
 
-input.simpars.censor_date = 0.25 * 24 * 60; % simulate for 50 days (1 day = 24 * 60 minutes)
+input.simpars.censor_date = 50 * 24 * 60; % simulate for 50 days (1 day = 24 * 60 minutes)
 % input.pars.desired_dt = 1;
 % input.pars.TME_size = [20,20,20];
 % input.initialization_pars.N0 = [100,10,20];

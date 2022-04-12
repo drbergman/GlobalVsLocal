@@ -5,7 +5,7 @@ clearvars;
 % aIL6R
 
 %% set up cohort
-nsamps = 2;
+nsamps = 20;
 method = ["local","global"];
 base_name = "Figure6_";
 min_parfor = 4; % if the timing of these runs is not important, allow for use of a parallel pool if desired
