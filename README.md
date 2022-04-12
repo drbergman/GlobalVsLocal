@@ -53,4 +53,9 @@ The files beginning with "Test_" can be run to create similar data to what is in
 | agentODE_FGFR3.m | Takes in the state variables for an agent (or vector of agents) along with parameter values and outputs the rate of change according to the reaction equations in the FGFR3 model. |
 | agentODE_IL6.m | Takes in the state variables for an agent (or vector of agents) along with parameter values and outputs the rate of change according to the reaction equations in the IL6 model. |
 | agentODEJacobian_FGFR3.m | Takes in the state variables for an agent (or vector of agents) along with parameter values as well as the constant entries in the Jacobian of the ODE function and outputs the Jacobian. Used in `pde_solver_FGFR3.m` to update the reaction equations rather than using an RK method or direct Euler. |
-| allCombos.m | Helper function that basically takes the _n_ outputs of `ndgrid` and makes each a column of a single array. Used to determine neighbors in lattice. See, for example, basePars_FGFR3.m Line 
+| allCombos.m | Helper function that basically takes the _n_ outputs of `ndgrid` and makes each a column of a single array. Used to determine neighbors in lattice. See, for example, https://github.com/drbergman/GlobalVsLocal/blob/29cabc8e270ec16b7d216409e1d5815280a4b49f/basePars_FGFR3.m#L11 |
+| avoidWeekends.m | A function that makes sure any dosing events in the FGFR3 model occur on weekdays. |
+| basePars_FGFR3.m | Creates a structure of base parameters for the FGFR3 model. |
+| basePars_IL6.m | Creates a structure of base parameters for the IL6 model. |
+| codensityFunction.m | Takes in locations of cells, a whole number _n_ for the nth nearest neighbors, a vector `types` identifying what type of agent is at each location, and outputs codensity calculations. |
+| dosingRegimes.m | Creates the sequence of events for an FGFR3 simulation. Events include new doses of aFGFR3  and 
