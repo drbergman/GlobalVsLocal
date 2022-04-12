@@ -15,4 +15,4 @@ The files beginning with "Test_" can be run to create similar data to what is in
 1. Run_Figure3.m: produces panels A-B.
 2. Run_Figure4CD.m: produces panels C-D. (also makes the same plot at other time points)
 
-## Figure 5
+## Figure 5 (Global method agrees with local method in growth dynamics and spatial distributions without aIL-6R)
