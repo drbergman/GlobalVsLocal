@@ -58,4 +58,15 @@ The files beginning with "Test_" can be run to create similar data to what is in
 | basePars_FGFR3.m | Creates a structure of base parameters for the FGFR3 model. |
 | basePars_IL6.m | Creates a structure of base parameters for the IL6 model. |
 | codensityFunction.m | Takes in locations of cells, a whole number _n_ for the nth nearest neighbors, a vector `types` identifying what type of agent is at each location, and outputs codensity calculations. |
-| dosingRegimes.m | Creates the sequence of events for an FGFR3 simulation. Events include new doses of aFGFR3  and 
+| dosingRegimes.m | Creates the sequence of events for an FGFR3 simulation. Events include new doses of aFGFR3 and censoring. |
+| eventProbabilities_IL6.m | Determines probabilities of all events in the next time step. |
+| finishParameterComputation_IL6.m | Computes any input parameters that are functions of other parameters in the IL6 model. |
+| fullGlobalODE_FGFR3.m | Computes the rate of change for the molecular dynamics in the FGFR3 model using the global method. |
+| fullGlobalODE_IL6.m | Computes the rate of change for the molecular dynamics in the IL6 model using the global method. |
+| initializeTumor_FGFR3.m | Initializes the tumor for the FGFR3 model. |
+| initializeTumor_IL6.m | Initializes the tumor for the IL6 model. |
+| iterativeEuler.m | Solves an ODE using direct Euler. If any of the state variables are negative, repeat the calculation with half the time step. |
+| nextFileName.m | Helper function that outputs a new filename for saving data. |
+| normalizeYLims.m | Helper function that normalizes _y_ limits for all axes in a figure. |
+| pde_solver_FGFR3.m | Solves the molecular dynamics in the FGFR3 model when using the local method. This includes both the PDE and the reaction ODEs. |
+| 
