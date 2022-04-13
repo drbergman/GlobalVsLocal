@@ -1,4 +1,4 @@
-# GlobalVsLocal
+# Global vs Local
 Repository of code for establishing how the global method compares to the local method for the paper "A global method for simulating intracellular signaling reduces computational time in multiscale agent-based models with systems biology applications"
 
 ## Reproducing Figures
