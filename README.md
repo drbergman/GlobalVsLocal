@@ -52,7 +52,7 @@ The files beginning with "Test_" can be run to create similar data to what is in
 | - | - |
 | agentODE_FGFR3.m | Takes in the state variables for an agent (or vector of agents) along with parameter values and outputs the rate of change according to the reaction equations in the FGFR3 model. |
 | agentODE_IL6.m | Takes in the state variables for an agent (or vector of agents) along with parameter values and outputs the rate of change according to the reaction equations in the IL6 model. |
-| agentODEJacobian_FGFR3.m | Takes in the state variables for an agent (or vector of agents) along with parameter values as well as the constant entries in the Jacobian of the ODE function and outputs the Jacobian. Used in `pde_solver_FGFR3.m` to update the reaction equations rather than using an RK method or direct Euler. |
+| agentODEJacobian_FGFR3.m | Takes in the state variables for an agent (or vector of agents) along with parameter values as well as the constant entries in the Jacobian of the ODE function and outputs the Jacobian. Used in `substrateSolver_FGFR3.m` to update the reaction equations rather than using an RK method or direct Euler. |
 | allCombos.m | Helper function that basically takes the _n_ outputs of `ndgrid` and makes each a column of a single array. Used to determine neighbors in lattice. See, for example, https://github.com/drbergman/GlobalVsLocal/blob/29cabc8e270ec16b7d216409e1d5815280a4b49f/basePars_FGFR3.m#L11 |
 | avoidWeekends.m | A function that makes sure any dosing events in the FGFR3 model occur on weekdays. |
 | basePars_FGFR3.m | Creates a structure of base parameters for the FGFR3 model. |
@@ -68,5 +68,14 @@ The files beginning with "Test_" can be run to create similar data to what is in
 | iterativeEuler.m | Solves an ODE using direct Euler. If any of the state variables are negative, repeat the calculation with half the time step. |
 | nextFileName.m | Helper function that outputs a new filename for saving data. |
 | normalizeYLims.m | Helper function that normalizes _y_ limits for all axes in a figure. |
-| pde_solver_FGFR3.m | Solves the molecular dynamics in the FGFR3 model when using the local method. This includes both the PDE and the reaction ODEs. |
-| 
+| saveSubstrateInfo.m | Saves substrate data in the IL6 model. |
+| setupSolver_IL6.m | Sets up the solver in the IL6 model depending on the desired method. |
+| simPatient_IL6.m | Simulates a patient in the IL6 model. |
+| simTumor_FGFR3.m | Simulates a tumor until the next event in the FGFR3 model. Note: this gets called by startPatient_FGFR3.m each time a new event, i.e. new dose, occurs. |
+| simTumor_IL6.m | Simulates a tumor in the IL6 model until the next event. Note: the only event in the IL6 model is censoring, so this always called once for each sample. |
+| sphere_with_carveout.m | Helper function to create a sphere with the first octant carved out and color it with a heatmap. Used to create Figure 4CD. |
+| startPatient_FGFR3.m | Simulates a patient in the FGFR3 model, calling simTumor_FGFR3.m between events. |
+| substrateSolver_FGFR3.m | Solves the molecular dynamics in the FGFR3 model when using the local method. This includes both the PDE and the reaction ODEs. |
+| substrateSolver_IL6.m | Solves the molecular dynamics in the IL6 model using either method. |
+| updateTumor_FGFR3.m | Updates tumor cell agents in the FGFR3 model based on the events randomly chosen for them in the current update step. |
+| updateTumor_IL6.m | Updates tumor cell agents in the IL6 model based on the events randomly chosen for them in the current update step. |
