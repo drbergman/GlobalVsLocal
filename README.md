@@ -26,7 +26,7 @@ Repository of code for establishing how the global method compares to the local 
 1. Run_varyPK.m: run simulations of FGFR3 model with varying PK parameters.
 2. Run_varyReactionRates.m: run simulations of FGFR3 model with varying reaction rate parameters.
 3. Run_varyInflux.m: run simulations of FGFR3 model with varying vasculature assumptions.
-4. Run_AbDynamics.m: run simulations of FGFR3 model assuming aFGFR3 is an antibody instead of an SMI
+4. [Run_AbDynamics.m](Run_AbDynamics.m): run simulations of FGFR3 model assuming aFGFR3 is an antibody instead of an SMI
 
 ## All files
 
@@ -34,7 +34,7 @@ Repository of code for establishing how the global method compares to the local 
 
 | Name | Description |
 | - | - |
-|  Run_AbDynamics.m | Runs FGFR3 model treating the SMI as an antibody. |
+|  [Run_AbDynamics.m](Run_AbDynamics.m) | Runs FGFR3 model treating the SMI as an antibody. |
 | Run_Figure3.m | Runs FGFR3 model to compare the local and global methods at the base parameter values. Also plots Figure 3A-E and Figure 4A-B. |
 | Run_Figure3FG.m | Runs FGFR3 model with varying initial numbers of cells using both local and global methods to see how the wall time increases with more cells. Also plots Figure 3F-G. |
 | Run_Figure4CD.m | Runs FGFR3 model using only the local method and will update a single figure with a 3D heatmap of drug concentration in the TME. Two of these are used for Figure 4C-D. |
