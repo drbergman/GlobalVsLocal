@@ -18,7 +18,7 @@ input = basePars_IL6();
 input.simpars.censor_date = 50 * 24 * 60; % simulate for 50 days (1 day = 24 * 60 minutes)
 % input.pars.desired_dt = 1;
 % input.pars.TME_size = [20,20,20];
-% input.initialization_pars.N0 = [100,10,20];
+input.initialization_pars.N0 = [100,10,20];
 
 %% run cohort
 
@@ -87,7 +87,6 @@ for ti = 1:3
         ls_type(mi,ti) = plot(ax(ti),t,ybar,'Color',method_colors(mi,:),'LineWidth',2,'DisplayName',disp_names(mi));
         patch(ax(ti),[t;flip(t)],[ybar-s;flip(ybar+s)],method_colors(mi,:),'EdgeColor','none','FaceAlpha',0.6)
     end
-    normalizeYLims(ax)
 end
 legend(ax(end),ls_type(:,end),'Location','best')
 set(ax,'XLim',[0 input.simpars.censor_date/(60*24)])
@@ -182,7 +181,6 @@ for ti = 1:3
         ls_type(mi,ti) = plot(ax(ti),t,ybar,'Color',method_colors(mi,:),'LineWidth',2,'DisplayName',disp_names(mi));
         patch(ax(ti),[t;flip(t)],[ybar-s;flip(ybar+s)],method_colors(mi,:),'EdgeColor','none','FaceAlpha',0.6)
    end
-   normalizeYLims(ax)
 end
 legend(ax(end),ls_type(:,end),'Location','best')
 set(ax,'XLim',[0 input.simpars.censor_date/(60*24)])

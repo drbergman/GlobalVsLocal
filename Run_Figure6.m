@@ -92,7 +92,6 @@ for ti = 1:3
         ls_type(mi,ti) = plot(ax(ti),t,ybar,'Color',method_colors(mi,:),'LineWidth',2,'DisplayName',disp_names(mi));
         patch(ax(ti),[t;flip(t)],[ybar-s;flip(ybar+s)],method_colors(mi,:),'EdgeColor','none','FaceAlpha',0.6)
     end
-    normalizeYLims(ax)
 end
 legend(ax(end),ls_type(:,end),'Location','best')
 set(ax,'XLim',[0 input.simpars.censor_date/(60*24)])
@@ -187,7 +186,6 @@ for ti = 1:3
         ls_type(mi,ti) = plot(ax(ti),t,ybar,'Color',method_colors(mi,:),'LineWidth',2,'DisplayName',disp_names(mi));
         patch(ax(ti),[t;flip(t)],[ybar-s;flip(ybar+s)],method_colors(mi,:),'EdgeColor','none','FaceAlpha',0.6)
    end
-   normalizeYLims(ax)
 end
 legend(ax(end),ls_type(:,end),'Location','best')
 set(ax,'XLim',[0 input.simpars.censor_date/(60*24)])

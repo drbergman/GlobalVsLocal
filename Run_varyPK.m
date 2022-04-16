@@ -29,7 +29,7 @@ events = dosingRegimes(censor_date,DoW_start,...
     aFGFR3_start_simday,aFGFR3_days_between,...
     n_doses_aFGFR3,[],[]);
 
-f = @(pars) startPatient(N0,pars,events{1}); % function to run simulation with a given set of parameters
+f = @(pars) startPatient_FGFR3(N0,pars,events{1}); % function to run simulation with a given set of parameters
 
 method = {'Local','Global'};
 sz = [length(method),nsamps,length(aFGFR3_diffusion),length(aFGFR3_circ0),length(aFGFR3_degradation)];

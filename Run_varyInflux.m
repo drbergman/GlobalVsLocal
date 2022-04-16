@@ -27,7 +27,7 @@ events = dosingRegimes(censor_date,DoW_start,...
     aFGFR3_start_simday,aFGFR3_days_between,...
     n_doses_aFGFR3,[],[]);
 
-f = @(pars) startPatient(N0,pars,events{1});
+f = @(pars) startPatient_FGFR3(N0,pars,events{1});
 
 method = {'Local','Global'};
 
