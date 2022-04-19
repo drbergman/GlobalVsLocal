@@ -39,7 +39,7 @@ Repository of code for establishing how the global method compares to the local 
 | [Run_Figure3FG.m](Run_Figure3FG.m) | Runs FGFR3 model with varying initial numbers of cells using both local and global methods to see how the wall time increases with more cells. Also plots Figure 3F-G. |
 | [Run_Figure4CD.m](Run_Figure4CD.m) | Runs FGFR3 model using only the local method and will update a single figure with a 3D heatmap of drug concentration in the TME. Two of these are used for Figure 4C-D. |
 | [Run_Figure5.m](Run_Figure5.m) | Runs IL6 model without aIL-6R to compare the two methods. Also plots Figure 5. |
-| [Run_Figure5.m](Run_Figure5.m) | Runs IL6 model with aIL-6R to compare the two methods. Also plots Figure 6. |
+| [Run_Figure6.m](Run_Figure6.m) | Runs IL6 model with aIL-6R to compare the two methods. Also plots Figure 6. |
 | [Run_varyInflux.m](Run_varyInflux.m) | Runs FGFR3 model while varying the vasculature assumptions about the tumor. Produces the data used to generate some of the figures in the supplement. |
 | [Run_varyPK.m](Run_varyPK.m) | Runs FGFR3 model while varying the PK parameters. Produces the data used to generate some of the figures in the supplement. |
 | [Run_varyReactionRates.m](Run_varyReactionRates.m) | Runs FGFR3 model while varying the reaction rate parameters. Produces the data used to generate some of the figures in the supplement. |
