@@ -19,7 +19,7 @@ Repository of code for establishing how the global method compares to the local 
 
 ### Figure 6 (Global method agrees with local method in growth dynamics and spatial distributions with aIL-6R)
 
-1. [Run_Figure5.m](Run_Figure5.m): produces all panels.
+1. [Run_Figure6.m](Run_Figure6.m): produces all panels.
 
 ### SI Figures
 
