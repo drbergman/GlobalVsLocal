@@ -65,7 +65,6 @@ Repository of code for establishing how the global method compares to the local 
 | [initializeTumor_IL6.m](initializeTumor_IL6.m) | Initializes the tumor for the IL6 model. |
 | [iterativeEuler.m](iterativeEuler.m) | Solves an ODE using direct Euler. If any of the state variables are negative, repeat the calculation with half the time step. |
 | [nextFileName.m](nextFileName.m) | Helper function that outputs a new filename for saving data. |
-| [normalizeYLims.m](normalizeYLims.m) | Helper function that normalizes _y_ limits for all axes in a figure. |
 | [saveSubstrateInfo.m](saveSubstrateInfo.m) | Saves substrate data in the IL6 model. |
 | [setupSolver_IL6.m](setupSolver_IL6.m) | Sets up the solver in the IL6 model depending on the desired method. |
 | [simPatient_IL6.m](simPatient_IL6.m) | Simulates a patient in the IL6 model. |
