@@ -7,7 +7,7 @@ pk_concentrations = solver.pk_concentrations; % [circulation;periphery] concentr
 dx_free = zeros(size(free_concentrations));
 for si = 1:2
     conc_diffs = free_concentrations(si,:)'-free_concentrations(si,:);
-    diffusion = 6*solver.substrate_pars(si).diffusion*sum(conc_diffs.*solver.M);
+    diffusion = 6*solver.substrate_pars(si).diffusion*sum(conc_diffs.*solver.M); % note that the 6 can be understood as 2 * number of dimensions in the simulation (so 2*3 here for a 3D simulation)
     dx_free(si,:) = dx_free(si,:) + diffusion - solver.substrate_pars(si).degradation*free_concentrations(si,:);
     if solver.is_pk(si)
         dx_free(si,:) = dx_free(si,:) + solver.regional_BV_prop .* solver.substrate_pars(si).fluid_exchange_rate .* (solver.substrate_pars(si).circulation_update_dual(t)*[0;pk_concentrations(:,si)]-free_concentrations(si,:));
