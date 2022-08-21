@@ -41,4 +41,4 @@ dx(8) = p.k_on_D*x(4)*x(5) - p.k_off_D*x(8); % aFGFR3 reacting with dimers
 % ambient aFGFR3 concentration
 dx(9) = p.prop_amb_receiving_inhibitor*(p.aFGFR3_influx*aFGFR3_circ0*exp(-p.aFGFR3_sysdecay*t)-p.aFGFR3_eflux*x(9)) ... % influx from circulation and flowing back into circulation
     - p.aFGFR3_degradation*x(9) ... % degradation and eflux
-    + 2*(1-p.prop_free_neighbors_that_are_free)*p.aFGFR3_diffusion*(x(5)-x(9))*(3/p.cell_width^2); % diffusion of drug within TME
+    + 2*(1-p.prop_free_neighbors_that_are_free)*p.aFGFR3_diffusion*(x(5)-x(9))*(3/p.cell_width^2); % diffusion of drug within TME; note that the 3 in 3/p.cell_width^2 is for the number of dimensions in which the simulation is occuring
